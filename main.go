@@ -4,36 +4,19 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
-	//"github.com/varnish/vcs-streamer/targets"
+	"github.com/varnish/vcs-streamer/output"
 	"log"
 	"net"
+	"strconv"
 )
 
-type Entry struct {
-	Key     string   `json:"key,omitempty"`
-	Buckets []Bucket `json:"buckets,omitempty"`
-}
-
-type Bucket struct {
-	Timestamp   string `json:"timestamp,omitempty"`
-	Nrequests   string `json:"n_requests,omitempty"`
-	NreqUniq    string `json:"n_req_uniq,omitempty"`
-	Nmisses     string `json:"n_misses,omitempty"`
-	Nrestarts   string `json:"n_restarts,omitempty"`
-	TTFBmiss    string `json:"ttfb_miss,omitempty"`
-	TTFBhit     string `json:"ttfb_hit,omitempty"`
-	NbodyBytes  string `json:"n_bodybytes,omitempty"`
-	RespBytes   string `json:"respbytes,omitempty"`
-	ReqBytes    string `json:"reqbytes,omitempty"`
-	BeReqBytes  string `json:"bereqbytes,omitempty"`
-	BeRespBytes string `json:"berespbytes,omitempty"`
-	RespCode1xx string `json:"resp_code_1xx,omitempty"`
-	RespCode2xx string `json:"resp_code_2xx,omitempty"`
-	RespCode3xx string `json:"resp_code_3xx,omitempty"`
-	RespCode4xx string `json:"resp_code_4xx,omitempty"`
-	RespCode5xx string `json:"resp_code_5xx,omitempty"`
-}
+var (
+	hostFlag   = flag.String("listen-host", "127.0.0.1", "Listen host")
+	portFlag   = flag.Int("listen-port", 6556, "Listen port")
+	outputFlag = flag.String("output", "collectd", "Specified output")
+)
 
 func handler(conn net.Conn) {
 	defer conn.Close()
@@ -62,13 +45,14 @@ func handler(conn net.Conn) {
 			entry := scanner.Bytes()
 			//log.Println("New event")
 
-			// Remove the first line of the entry, that contains the number
-			// of bytes to read.
-			e := Entry{}
+			// Remove the first line of the entry, that
+			// contains the number of bytes to read.
+			e := output.Entry{}
 			entry = entry[bytes.IndexByte(entry, '\n'):]
 
 			if err := json.Unmarshal(entry, &e); err != nil {
-				log.Fatalf("Error decoding data: %s\n", err)
+				log.Printf("Invalid data: %s\n", entry)
+				log.Fatalf("Decode error: %s\n", err)
 			}
 
 			fmt.Printf("Key: %s\n", e.Key)
@@ -78,7 +62,9 @@ func handler(conn net.Conn) {
 }
 
 func main() {
-	l, err := net.Listen("tcp", ":1337")
+	flag.Parse()
+
+	l, err := net.Listen("tcp", *hostFlag+":"+strconv.Itoa(*portFlag))
 	if err != nil {
 		log.Fatal(err)
 	}
