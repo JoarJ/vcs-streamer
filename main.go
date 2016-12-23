@@ -58,12 +58,44 @@ func handler(conn net.Conn) {
 
 			//fmt.Printf("Key: %s\n", e.Key)
 			//fmt.Printf("%v\n\n", e)
+
+			key := ""
+			value := ""
 			for _, b := range e.Buckets {
-				k := e.Key + "/n_requests"
 				t := b.Timestamp
-				v := b.Nrequests
 				i := *intervalFlag
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", k, i, t, v)
+
+				key = e.Key + "/n_requests"
+				value = b.Nrequests
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/n_misses"
+				value = b.Nmisses
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/resp_code_1xx"
+				value = b.RespCode1xx
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/resp_code_2xx"
+				value = b.RespCode2xx
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/resp_code_3xx"
+				value = b.RespCode3xx
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/resp_code_4xx"
+				value = b.RespCode4xx
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/resp_code_5xx"
+				value = b.RespCode5xx
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				key = e.Key + "/respbytes"
+				value = b.RespBytes
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 			}
 		}
 	}
