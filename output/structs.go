@@ -30,9 +30,9 @@ type Output interface {
 	Setup(map[string]string) error
 }
 
-func New(output string) Output {
-	switch output {
-	default:
-		return collectd.New()
-	}
-}
+//func New(output string) Output {
+//	switch output {
+//	default:
+//		return collectd.New()
+//	}
+//}

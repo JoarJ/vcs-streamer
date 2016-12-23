@@ -16,6 +16,7 @@ var (
 	hostFlag   = flag.String("listen-host", "127.0.0.1", "Listen host")
 	portFlag   = flag.Int("listen-port", 6556, "Listen port")
 	outputFlag = flag.String("output", "collectd", "Specified output")
+	intervalFlag = flag.Uint("interval", 10, "Interval in seconds")
 )
 
 func handler(conn net.Conn) {
@@ -55,8 +56,15 @@ func handler(conn net.Conn) {
 				log.Fatalf("Decode error: %s\n", err)
 			}
 
-			fmt.Printf("Key: %s\n", e.Key)
-			fmt.Printf("%v\n\n", e)
+			//fmt.Printf("Key: %s\n", e.Key)
+			//fmt.Printf("%v\n\n", e)
+			for _, b := range e.Buckets {
+				k := e.Key + "/n_requests"
+				t := b.Timestamp
+				v := b.Nrequests
+				i := *intervalFlag
+				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", k, i, t, v)
+			}
 		}
 	}
 }
