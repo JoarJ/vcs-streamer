@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -65,37 +66,51 @@ func handler(conn net.Conn) {
 				t := b.Timestamp
 				i := *intervalFlag
 
-				key = e.Key + "/n_requests"
-				value = b.Nrequests
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				//key = e.Key + "/n_requests"
 
-				key = e.Key + "/n_misses"
-				value = b.Nmisses
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+                // we want namespacing: HOST/vcs/n_requests-BACKEND 
+				s := strings.Split(e.Key, "/")
+                // avoid  'index out of range'
+                if len(s) > 2 {
+				  key = s[0] + "/" + s[1] + "/n_requests" + "-" + s[2]
+				  value = b.Nrequests
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/resp_code_1xx"
-				value = b.RespCode1xx
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				  //key = e.Key + "/n_misses"
+                  key = s[0] + "/" + s[1] + "/n_misses" + "-" + s[2]
+				  value = b.Nmisses
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/resp_code_2xx"
-				value = b.RespCode2xx
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				  //key = e.Key + "/resp_code_1xx"
+                  key = s[0] + "/" + s[1] + "/resp_code_1xx" + "-" + s[2]
+				  value = b.RespCode1xx
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/resp_code_3xx"
-				value = b.RespCode3xx
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				  //key = e.Key + "/resp_code_2xx"
+                  key = s[0] + "/" + s[1] + "/resp_code_2xx" + "-" + s[2]
+				  value = b.RespCode2xx
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/resp_code_4xx"
-				value = b.RespCode4xx
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+			  	  //key = e.Key + "/resp_code_3xx"
+                  key = s[0] + "/" + s[1] + "/resp_code_3xx" + "-" + s[2]
+				  value = b.RespCode3xx
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/resp_code_5xx"
-				value = b.RespCode5xx
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				  //key = e.Key + "/resp_code_4xx"
+                  key = s[0] + "/" + s[1] + "/resp_code_4xx" + "-" + s[2]
+				  value = b.RespCode4xx
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
 
-				key = e.Key + "/respbytes"
-				value = b.RespBytes
-				fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+				  //key = e.Key + "/resp_code_5xx"
+                  key = s[0] + "/" + s[1] + "/resp_code_5xx" + "-" + s[2]
+				  value = b.RespCode5xx
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+
+				  //key = e.Key + "/respbytes"
+                  key = s[0] + "/" + s[1] + "/respbytes" + "-" + s[2]
+				  value = b.RespBytes
+				  fmt.Printf("PUTVAL %s interval=%d %s:%s\n", key, i, t, value)
+                }
 			}
 		}
 	}
